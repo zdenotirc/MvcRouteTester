@@ -7,52 +7,52 @@ using NUnit.Framework;
 
 namespace MvcRouteTester.AttributeRouting.Test.WebRoute
 {
-	[TestFixture]
-	public class HomeControllerTests
-	{
-		private RouteCollection routes;
-		
-		[SetUp]
-		public void Setup()
-		{
-			RouteAssert.UseAssertEngine(new NunitAssertEngine());
+    [TestFixture]
+    public class HomeControllerTests
+    {
+        private RouteCollection routes;
 
-			var defaultConstraintResolver = new DefaultInlineConstraintResolver();
-			defaultConstraintResolver.ConstraintMap.Add("verb", typeof(CustomConstraint));
+        [SetUp]
+        public void Setup()
+        {
+            RouteAssert.UseAssertEngine(new NunitAssertEngine());
 
-			routes = new RouteCollection();
-			routes.MapAttributeRoutesInAssembly(typeof(HomeAttrController), defaultConstraintResolver);
-		}
+            var defaultConstraintResolver = new DefaultInlineConstraintResolver();
+            defaultConstraintResolver.ConstraintMap.Add("verb", typeof(CustomConstraint));
 
-		[Test]
-		public void HasRoutesInTable()
-		{
-			Assert.That(routes.Count, Is.GreaterThan(0));
-		}
+            routes = new RouteCollection();
+            routes.MapAttributeRoutesInAssembly(typeof(HomeAttrController), defaultConstraintResolver);
+        }
 
-		[Test]
-		public void HasHomeRoute()
-		{
-			var expectedRoute = new { controller = "HomeAttr", action = "Index" };
-			RouteAssert.HasRoute(routes, "/homeattr/index", expectedRoute);
-		}
+        [Test]
+        public void HasRoutesInTable()
+        {
+            Assert.That(routes.Count, Is.GreaterThan(0));
+        }
 
-		[Test]
-		public void DoesNotHaveInvalidRoute()
-		{
-			RouteAssert.NoRoute(routes, "foo/bar/fish");
-		}
+        [Test]
+        public void HasHomeRoute()
+        {
+            var expectedRoute = new { controller = "HomeAttr", action = "Index" };
+            RouteAssert.HasRoute(routes, "/homeattr/index", expectedRoute);
+        }
 
-		[Test]
-		public void HasFluentRoute()
-		{
-			routes.ShouldMap("/homeattr/index").To<HomeAttrController>(x => x.Index());
-		}
+        [Test]
+        public void DoesNotHaveInvalidRoute()
+        {
+            RouteAssert.NoRoute(routes, "foo/bar/fish");
+        }
 
-		[Test]
-		public void HasFluentNoRoute()
-		{
-			routes.ShouldMap("/foo/bar/fish").ToNoRoute();
-		}
-	}
+        [Test]
+        public void HasFluentRoute()
+        {
+            routes.ShouldMap("/homeattr/index").To<HomeAttrController>(x => x.Index());
+        }
+
+        [Test]
+        public void HasFluentNoRoute()
+        {
+            routes.ShouldMap("/foo/bar/fish").ToNoRoute();
+        }
+    }
 }

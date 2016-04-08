@@ -5,32 +5,32 @@ using MvcRouteTester.Common;
 
 namespace MvcRouteTester.HttpMocking
 {
-	public class HttpMockery
-	{
-		public static HttpContextBase ContextForUrl(string url)
-		{
-			return ContextForUrl(HttpMethod.Get, url, string.Empty);
-		}
+    public class HttpMockery
+    {
+        public static HttpContextBase ContextForUrl(string url)
+        {
+            return ContextForUrl(HttpMethod.Get, url, string.Empty);
+        }
 
-		public static HttpContextBase ContextForUrl(HttpMethod method, string url, string requestBody)
-		{
-			if (string.IsNullOrEmpty(url))
-			{
-				url = string.Empty;
-			}
-			var routeParts = url.Split('?');
-			var relativeUrl = routeParts[0];
-			var queryParamsValues = UrlHelpers.ReadQueryParams(url);
-			var queryParams = queryParamsValues.AsNameValueCollection();
+        public static HttpContextBase ContextForUrl(HttpMethod method, string url, string requestBody)
+        {
+            if (string.IsNullOrEmpty(url))
+            {
+                url = string.Empty;
+            }
+            var routeParts = url.Split('?');
+            var relativeUrl = routeParts[0];
+            var queryParamsValues = UrlHelpers.ReadQueryParams(url);
+            var queryParams = queryParamsValues.AsNameValueCollection();
 
-			var request = new MockHttpRequest(method, relativeUrl, queryParams, requestBody);
-			var response = new MockHttpResponse();
-			var httpContext = new MockHttpContext(request, response);
+            var request = new MockHttpRequest(method, relativeUrl, queryParams, requestBody);
+            var response = new MockHttpResponse();
+            var httpContext = new MockHttpContext(request, response);
 
-			var requestContext = new RequestContext(httpContext, new RouteData());
-			request.SetContext(requestContext);
+            var requestContext = new RequestContext(httpContext, new RouteData());
+            request.SetContext(requestContext);
 
-			return httpContext;
-		}
-	}
+            return httpContext;
+        }
+    }
 }

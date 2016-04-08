@@ -7,57 +7,57 @@ using NUnit.Framework;
 
 namespace MvcRouteTester.Test.WebRoute
 {
-	public class HasAliasRouteTests
-	{
-		[SetUp]
-		public void Setup()
-		{
-			RouteAssert.UseAssertEngine(new NunitAssertEngine());
-		}
-		
-		[Test]
-		public void FluentRouteWithCaps()
-		{
-			var routesWithCaps = new RouteCollection();
-			routesWithCaps.IgnoreRoute("{resource}.axd/{*pathInfo}");
+    public class HasAliasRouteTests
+    {
+        [SetUp]
+        public void Setup()
+        {
+            RouteAssert.UseAssertEngine(new NunitAssertEngine());
+        }
 
-			// note that "Controller" and "Action" are capitalised
-			routesWithCaps.MapRoute(
-				name: "Default",
-				url: "{controller}/{action}/{id}",
-				defaults: new { Controller = "Home", Action = "Index", id = 32 });
+        [Test]
+        public void FluentRouteWithCaps()
+        {
+            var routesWithCaps = new RouteCollection();
+            routesWithCaps.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-			RouteAssert.HasRoute(routesWithCaps, "/home/index/32", "Home", "Index");
-		}
+            // note that "Controller" and "Action" are capitalised
+            routesWithCaps.MapRoute(
+                name: "Default",
+                url: "{controller}/{action}/{id}",
+                defaults: new { Controller = "Home", Action = "Index", id = 32 });
 
-		[Test]
-		public void FluentRouteShouldHandleAliasRoute()
-		{
-			var routesWithAlias = new RouteCollection();
-			routesWithAlias.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            RouteAssert.HasRoute(routesWithCaps, "/home/index/32", "Home", "Index");
+        }
 
-			routesWithAlias.MapRoute(
-				name: "Alias Route",
-				url: "aliasroute",
-				defaults: new { controller = "Home", action = "Index", id = 32 });
+        [Test]
+        public void FluentRouteShouldHandleAliasRoute()
+        {
+            var routesWithAlias = new RouteCollection();
+            routesWithAlias.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-			RouteAssert.HasRoute(routesWithAlias, "/aliasroute", "Home", "Index");
-		}
+            routesWithAlias.MapRoute(
+                name: "Alias Route",
+                url: "aliasroute",
+                defaults: new { controller = "Home", action = "Index", id = 32 });
 
-		[Test]
-		public void FluentRouteShouldHandleAliasRouteWithCaps()
-		{
-			var routesWithAlias = new RouteCollection();
-			routesWithAlias.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            RouteAssert.HasRoute(routesWithAlias, "/aliasroute", "Home", "Index");
+        }
 
-			// note that "Controller" and "Action" are capitalised
-			routesWithAlias.MapRoute(
-				name: "Alias Route",
-				url: "aliasroute",
-				defaults: new { Controller = "Home", Action = "Index", id = 32 });
+        [Test]
+        public void FluentRouteShouldHandleAliasRouteWithCaps()
+        {
+            var routesWithAlias = new RouteCollection();
+            routesWithAlias.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
-			RouteAssert.HasRoute(routesWithAlias, "/aliasroute", "Home", "Index");
-		}
+            // note that "Controller" and "Action" are capitalised
+            routesWithAlias.MapRoute(
+                name: "Alias Route",
+                url: "aliasroute",
+                defaults: new { Controller = "Home", Action = "Index", id = 32 });
 
-	}
+            RouteAssert.HasRoute(routesWithAlias, "/aliasroute", "Home", "Index");
+        }
+
+    }
 }

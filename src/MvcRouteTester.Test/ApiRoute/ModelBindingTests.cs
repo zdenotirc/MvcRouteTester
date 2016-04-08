@@ -8,55 +8,75 @@ using NUnit.Framework;
 
 namespace MvcRouteTester.Test.ApiRoute
 {
-	[TestFixture]
-	public class ModelBindingTests
-	{
-		private HttpConfiguration config;
+    [TestFixture]
+    public class ModelBindingTests
+    {
+        private HttpConfiguration config;
 
-		[SetUp]
-		public void MakeRouteTable()
-		{
-			RouteAssert.UseAssertEngine(new NunitAssertEngine());
+        [SetUp]
+        public void MakeRouteTable()
+        {
+            RouteAssert.UseAssertEngine(new NunitAssertEngine());
 
-			config = new HttpConfiguration();
+            config = new HttpConfiguration();
 
-			config.Routes.MapHttpRoute(
-				name: "DefaultApi",
-				routeTemplate: "api/{controller}/{id}/{name}",
-				defaults: new { id = RouteParameter.Optional });
-		}
+            config.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "api/{controller}/{id}/{name}",
+                defaults: new { id = RouteParameter.Optional });
+        }
 
-		[Test]
-		public void TestHasApiRouteToCorrectController()
-		{
-			var expectations = new
-			{
-				controller = "WithObject",
-				action = "Get"
-			};
-			RouteAssert.HasApiRoute(config, "/api/withobject/123/fred", HttpMethod.Get, expectations);
-		}
+        [Test]
+        public void TestHasApiRouteToCorrectController()
+        {
+            var expectations = new
+            {
+                controller = "WithObject",
+                action = "Get"
+            };
+            RouteAssert.HasApiRoute(config, "/api/withobject/123/fred", HttpMethod.Get, expectations);
+        }
 
-		[Test]
-		public void TestHasApiRouteParams()
-		{
-			var expectations = new
-				{
-					controller = "WithObject",
-					action = "Get",
-					id = "123",
-					name = "fred"
-				};
+        [Test]
+        public void TestHasApiRouteParams()
+        {
+            var expectations = new
+            {
+                controller = "WithObject",
+                action = "Get",
+                id = "123",
+                name = "fred"
+            };
 
-			RouteAssert.HasApiRoute(config, "/api/withobject/123/fred", HttpMethod.Get, expectations);
-		}
+            RouteAssert.HasApiRoute(config, "/api/withobject/123/fred", HttpMethod.Get, expectations);
+        }
 
-		[Test]
-		public void TestFluentMap()
-		{
-			config.ShouldMap("/api/withobject/123/fred").To<WithObjectController>(HttpMethod.Get,
-				c => c.Get(new InputModel { Id = 123, Name = "fred"}));
-		}
+        [Test]
+        public void TestFluentMap()
+        {
+            config.ShouldMap("/api/withobject/123/fred").To<WithObjectController>(HttpMethod.Get,
+                c => c.Get(new InputModel { Id = 123, Name = "fred" }));
+        }
 
-	}
+        [Test]
+        public void TestFluentMap2()
+        {
+            config.ShouldMap("/api/withobject/123/fred").To<WithObjectController>(HttpMethod.Get,
+                c => c.Get2(new InputModel { Id = 123, Name = "fred" }));
+        }
+
+        [Test]
+        public void TestFluentMap3()
+        {
+            config.ShouldMap("/api/withobject/123/fred").To<WithObjectController>(HttpMethod.Get,
+                c => c.Get3(new InputModel { Id = 123, Name = "fred" }));
+        }
+
+        [Test]
+        public void TestFluentMap4()
+        {
+            config.ShouldMap("/api/withobject/123/fred").To<WithObjectController>(HttpMethod.Get,
+                c => c.Get4(new InputModel { Id = 123, Name = "fred" }));
+        }
+    }
 }

@@ -7,195 +7,195 @@ using MvcRouteTester.Assertions;
 
 namespace MvcRouteTester.Common
 {
-	public class RouteValues
-	{
-		private readonly List<RouteValue> values = new List<RouteValue>(); 
-	
-		public string Controller { get; set; }
-		public string Action { get; set; }
-		public string Area { get; set; }
-		public bool DataOk { get; private set; }
+    public class RouteValues
+    {
+        private readonly List<RouteValue> values = new List<RouteValue>();
 
-		public RouteValues()
-		{
-			DataOk = true;
-		}
+        public string Controller { get; set; }
+        public string Action { get; set; }
+        public string Area { get; set; }
+        public bool DataOk { get; private set; }
 
-		public RouteValues(IDictionary<string, object> values)
-		{
-			DataOk = true;
+        public RouteValues()
+        {
+            DataOk = true;
+        }
 
-			foreach (var value in values)
-			{
-				AddRouteValue(value.Key, value.Value);
-			}
-		}
+        public RouteValues(IDictionary<string, object> values)
+        {
+            DataOk = true;
 
-		public RouteValues(IDictionary<string, string> values)
-		{
-			DataOk = true;
+            foreach (var value in values)
+            {
+                AddRouteValue(value.Key, value.Value);
+            }
+        }
 
-			foreach (var value in values)
-			{
-				AddRouteValue(value.Key, value.Value);
-			}
-		}
+        public RouteValues(IDictionary<string, string> values)
+        {
+            DataOk = true;
 
-		private void AddRouteValue(string key, object value)
-		{
-			switch (key.ToLowerInvariant())
-			{
-				case "controller":
-					Controller = value.ToString();
-					break;
+            foreach (var value in values)
+            {
+                AddRouteValue(value.Key, value.Value);
+            }
+        }
 
-				case "action":
-					Action = value.ToString();
-					break;
+        private void AddRouteValue(string key, object value)
+        {
+            switch (key.ToLowerInvariant())
+            {
+                case "controller":
+                    Controller = value.ToString();
+                    break;
 
-				case "area":
-					Area = value.ToString();
-					break;
+                case "action":
+                    Action = value.ToString();
+                    break;
 
-				default:
-					Add(new RouteValue(key, value, RouteValueOrigin.Unknown));
-					break;
-			}
-		}
+                case "area":
+                    Area = value.ToString();
+                    break;
 
-		private void AddRouteValue(RouteValue value)
-		{
-			switch (value.Name.ToLowerInvariant())
-			{
-				case "controller":
-					Controller = value.ValueAsString;
-					break;
+                default:
+                    Add(new RouteValue(key, value, RouteValueOrigin.Unknown));
+                    break;
+            }
+        }
 
-				case "action":
-					Action = value.ValueAsString;
-					break;
+        private void AddRouteValue(RouteValue value)
+        {
+            switch (value.Name.ToLowerInvariant())
+            {
+                case "controller":
+                    Controller = value.ValueAsString;
+                    break;
 
-				case "area":
-					Area = value.ValueAsString;
-					break;
+                case "action":
+                    Action = value.ValueAsString;
+                    break;
 
-				default:
-					Add(value);
-					break;
-			}
-		}
+                case "area":
+                    Area = value.ValueAsString;
+                    break;
 
-		public void Add(RouteValue value)
-		{
-			values.Add(value);
-		}
+                default:
+                    Add(value);
+                    break;
+            }
+        }
 
-		public void AddRange(IEnumerable<RouteValue> valuesToAdd)
-		{
-			values.AddRange(valuesToAdd);
-		}
+        public void Add(RouteValue value)
+        {
+            values.Add(value);
+        }
 
-		public void AddRangeWithParse(IEnumerable<RouteValue> valuesToAdd)
-		{
-			foreach (var routeValue in valuesToAdd)
-			{
-				AddRouteValue(routeValue);
-			}
-		}
+        public void AddRange(IEnumerable<RouteValue> valuesToAdd)
+        {
+            values.AddRange(valuesToAdd);
+        }
 
-		public IList<RouteValue> Values
-		{
-			get { return values; }
-		}
+        public void AddRangeWithParse(IEnumerable<RouteValue> valuesToAdd)
+        {
+            foreach (var routeValue in valuesToAdd)
+            {
+                AddRouteValue(routeValue);
+            }
+        }
 
-		public RouteValue GetRouteValue(string name, RouteValueOrigin expectedOrigin)
-		{
-			foreach (var routeValue in values)
-			{
-				if (RouteValueMatches(routeValue, name, expectedOrigin))
-				{
-					return routeValue;
-				}
-			}
+        public IList<RouteValue> Values
+        {
+            get { return values; }
+        }
 
-			return null;
-		}
+        public RouteValue GetRouteValue(string name, RouteValueOrigin expectedOrigin)
+        {
+            foreach (var routeValue in values)
+            {
+                if (RouteValueMatches(routeValue, name, expectedOrigin))
+                {
+                    return routeValue;
+                }
+            }
 
-		private static bool RouteValueMatches(RouteValue routeValue, string name, RouteValueOrigin expectedOrigin)
-		{
-			return string.Equals(name, routeValue.Name, StringComparison.OrdinalIgnoreCase) && RouteValueOriginHelpers.Matches(expectedOrigin, routeValue.Origin);
-		}
+            return null;
+        }
 
-		public RouteValueDictionary AsRouteValueDictionary()
-		{
-			RouteValueDictionary result = new RouteValueDictionary();
+        private static bool RouteValueMatches(RouteValue routeValue, string name, RouteValueOrigin expectedOrigin)
+        {
+            return string.Equals(name, routeValue.Name, StringComparison.OrdinalIgnoreCase) && RouteValueOriginHelpers.Matches(expectedOrigin, routeValue.Origin);
+        }
 
-			foreach (var routeValue in Values)
-			{
-				result.Add(routeValue.Name, routeValue.Value);
-			}
+        public RouteValueDictionary AsRouteValueDictionary()
+        {
+            RouteValueDictionary result = new RouteValueDictionary();
 
-			if (! string.IsNullOrEmpty(Controller))
-			{
-				result.Add("controller", Controller);
-			}
+            foreach (var routeValue in Values)
+            {
+                result.Add(routeValue.Name, routeValue.Value);
+            }
 
-			if (!string.IsNullOrEmpty(Action))
-			{
-				result.Add("action", Action);
-			}
+            if (!string.IsNullOrEmpty(Controller))
+            {
+                result.Add("controller", Controller);
+            }
 
-			if (!string.IsNullOrEmpty(Area))
-			{
-				result.Add("area", Area);
-			}
+            if (!string.IsNullOrEmpty(Action))
+            {
+                result.Add("action", Action);
+            }
 
-			return result;
-		}
+            if (!string.IsNullOrEmpty(Area))
+            {
+                result.Add("area", Area);
+            }
 
-		public void CheckDataOk()
-		{
-			DataOk = true;
+            return result;
+        }
 
-			if (string.IsNullOrEmpty(Controller))
-			{
-				var message = string.Format("No 'controller' property found in expected route properties");
-				Asserts.Fail(message);
-				DataOk = false;
-			}
+        public void CheckDataOk()
+        {
+            DataOk = true;
 
-			if (string.IsNullOrEmpty(Action))
-			{
-				var message = string.Format("No 'action' property found in  expected route properties");
-				Asserts.Fail(message);
-				DataOk = false;
-			}
-		}
+            if (string.IsNullOrEmpty(Controller))
+            {
+                var message = string.Format("No 'controller' property found in expected route properties");
+                Asserts.Fail(message);
+                DataOk = false;
+            }
 
-		public void Sort()
-		{
-			values.Sort(SortRouteValueByAlphaAndDefault);
-		}
+            if (string.IsNullOrEmpty(Action))
+            {
+                var message = string.Format("No 'action' property found in  expected route properties");
+                Asserts.Fail(message);
+                DataOk = false;
+            }
+        }
 
-		private int SortRouteValueByAlphaAndDefault(RouteValue a, RouteValue b)
-		{
-			var result = string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase);
+        public void Sort()
+        {
+            values.Sort(SortRouteValueByAlphaAndDefault);
+        }
 
-			if (result == 0)
-			{
-				if (a.Value == RouteParameter.Optional)
-				{
-					return 1;
-				}
-				if (b.Value == RouteParameter.Optional)
-				{
-					return -1;
-				}
+        private int SortRouteValueByAlphaAndDefault(RouteValue a, RouteValue b)
+        {
+            var result = string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase);
 
-				return (int)a.Origin - (int)b.Origin;
-			}
+            if (result == 0)
+            {
+                if (a.Value == RouteParameter.Optional)
+                {
+                    return 1;
+                }
+                if (b.Value == RouteParameter.Optional)
+                {
+                    return -1;
+                }
 
-			return result;
-		}
-	}
+                return (int)a.Origin - (int)b.Origin;
+            }
+
+            return result;
+        }
+    }
 }

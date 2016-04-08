@@ -13,343 +13,343 @@ using MvcRouteTester.Common;
 
 namespace MvcRouteTester.ApiRoute
 {
-	/// <summary>
-	/// code from http://www.strathweb.com/2012/08/testing-routes-in-asp-net-web-api/
-	/// </summary>
-	internal class Generator
-	{
-		private readonly HttpConfiguration config;
-		private readonly HttpRequestMessage request;
+    /// <summary>
+    /// code from http://www.strathweb.com/2012/08/testing-routes-in-asp-net-web-api/
+    /// </summary>
+    internal class Generator
+    {
+        private readonly HttpConfiguration config;
+        private readonly HttpRequestMessage request;
 
-		private IHttpRouteData matchedRoute;
-		private IHttpControllerSelector controllerSelector;
-		private HttpControllerContext controllerContext;
-		private HttpActionDescriptor descriptor;
+        private IHttpRouteData matchedRoute;
+        private IHttpControllerSelector controllerSelector;
+        private HttpControllerContext controllerContext;
+        private HttpActionDescriptor descriptor;
 
-		public Generator(HttpConfiguration conf, HttpRequestMessage req)
-		{
-			config = conf;
-			request = req;
-			
-			GenerateRouteData();
-		}
+        public Generator(HttpConfiguration conf, HttpRequestMessage req)
+        {
+            config = conf;
+            request = req;
 
-		public bool HasMatchedRoute
-		{
-			get { return matchedRoute != null; }
-		}
+            GenerateRouteData();
+        }
 
-		public bool HasHandlerOfType<THandler>() where THandler : HttpMessageHandler
-		{
-			return HandlerType() == typeof(THandler);
-		}
+        public bool HasMatchedRoute
+        {
+            get { return matchedRoute != null; }
+        }
 
-		public bool HasHandler() 
-		{
-			return HandlerType() != null;
-		}
+        public bool HasHandlerOfType<THandler>() where THandler : HttpMessageHandler
+        {
+            return HandlerType() == typeof(THandler);
+        }
 
-		public Type HandlerType()
-		{
-			if (!HasMatchedRoute || (matchedRoute.Route.Handler == null))
-			{
-				return null;
-			} 
-			
-			return matchedRoute.Route.Handler.GetType();
-		}
+        public bool HasHandler()
+        {
+            return HandlerType() != null;
+        }
 
-		public RouteValues ReadRequestProperties(string url, HttpMethod httpMethod, BodyFormat bodyFormat)
-		{
-			if (! CheckValid(url, httpMethod))
-			{
-				return new RouteValues();
-			}
+        public Type HandlerType()
+        {
+            if (!HasMatchedRoute || (matchedRoute.Route.Handler == null))
+            {
+                return null;
+            }
 
-			var actualProps = new RouteValues();
-			actualProps.Controller = ControllerName();
-			actualProps.Action = ActionName();
+            return matchedRoute.Route.Handler.GetType();
+        }
 
-			actualProps.AddRange(GetRouteParams());
+        public RouteValues ReadRequestProperties(string url, HttpMethod httpMethod, BodyFormat bodyFormat)
+        {
+            if (!CheckValid(url, httpMethod))
+            {
+                return new RouteValues();
+            }
 
-			var queryParams = UrlHelpers.ReadQueryParams(url);
-			actualProps.AddRange(queryParams);
-			actualProps.AddRange(ReadPropertiesFromBodyContent(bodyFormat));
+            var actualProps = new RouteValues();
+            actualProps.Controller = ControllerName();
+            actualProps.Action = ActionName();
 
-			actualProps.Sort();
+            actualProps.AddRange(GetRouteParams());
 
-			return actualProps;
-		}
+            var queryParams = UrlHelpers.ReadQueryParams(url);
+            actualProps.AddRange(queryParams);
+            actualProps.AddRange(ReadPropertiesFromBodyContent(bodyFormat));
 
-		private bool CheckValid(string url, HttpMethod httpMethod)
-		{
-			if (!HasMatchedRoute)
-			{
-				var noRouteDataMessage = string.Format("No route matched url '{0}'", url);
-				Asserts.Fail(noRouteDataMessage);
-				return false;
-			}
+            actualProps.Sort();
 
-			if (!IsControllerRouteFound())
-			{
-				var routeNotFoundMessage = string.Format("Route with controller not found for url '{0}'", url);
-				Asserts.Fail(routeNotFoundMessage);
-				return false;
-			}
+            return actualProps;
+        }
 
-			if (!IsMethodAllowed())
-			{
-				var methodNotAllowedMessage = string.Format("Method {0} is not allowed on url '{1}'", httpMethod, url);
-				Asserts.Fail(methodNotAllowedMessage);
-				return false;
-			}
+        private bool CheckValid(string url, HttpMethod httpMethod)
+        {
+            if (!HasMatchedRoute)
+            {
+                var noRouteDataMessage = string.Format("No route matched url '{0}'", url);
+                Asserts.Fail(noRouteDataMessage);
+                return false;
+            }
 
-			return true;
-		}
+            if (!IsControllerRouteFound())
+            {
+                var routeNotFoundMessage = string.Format("Route with controller not found for url '{0}'", url);
+                Asserts.Fail(routeNotFoundMessage);
+                return false;
+            }
 
-		public IList<RouteValue> GetRouteParams()
-		{
-			var actionDescriptor = GetActionDescriptor();
-			var actionParams = actionDescriptor.GetParameters();
+            if (!IsMethodAllowed())
+            {
+                var methodNotAllowedMessage = string.Format("Method {0} is not allowed on url '{1}'", httpMethod, url);
+                Asserts.Fail(methodNotAllowedMessage);
+                return false;
+            }
 
-			var result = new List<RouteValue>();
-			var routeDataValues = GetRouteData();
-			if (routeDataValues != null)
-			{
-				foreach (var param in actionParams)
-				{
-					var values = ProcessActionParam(param, routeDataValues);
-					result.AddRange(values);
-				}
-			}
+            return true;
+        }
 
-			return result;
-		}
+        public IList<RouteValue> GetRouteParams()
+        {
+            var actionDescriptor = GetActionDescriptor();
+            var actionParams = actionDescriptor.GetParameters();
 
-		private static IList<RouteValue> ProcessActionParam(HttpParameterDescriptor param, IHttpRouteData routeDataValues)
-		{
-			var propertyReader = new PropertyReader();
+            var result = new List<RouteValue>();
+            var routeDataValues = GetRouteData();
+            if (routeDataValues != null)
+            {
+                foreach (var param in actionParams)
+                {
+                    var values = ProcessActionParam(param, routeDataValues);
+                    result.AddRange(values);
+                }
+            }
 
-			if (propertyReader.IsSimpleType(param.ParameterType))
-			{
-				return ProcessSimpleActionParam(param, routeDataValues);
-			}
+            return result;
+        }
 
-			return ProcessCompoundActionParam(param, routeDataValues, propertyReader);
-		}
+        private static IList<RouteValue> ProcessActionParam(HttpParameterDescriptor param, IHttpRouteData routeDataValues)
+        {
+            var propertyReader = new PropertyReader();
 
-		private static IList<RouteValue> ProcessSimpleActionParam(HttpParameterDescriptor param, IHttpRouteData routeDataValues)
-		{
-			var routeValues = new List<RouteValue>();
+            if (propertyReader.IsSimpleType(param.ParameterType))
+            {
+                return ProcessSimpleActionParam(param, routeDataValues);
+            }
 
-			var paramName = param.ParameterName;
-			var value = ReadParamWithRouteValue(paramName, routeDataValues.Values);
-			if (value != null)
-			{
-				routeValues.Add(value);
-			}
-			return routeValues;
-		}
+            return ProcessCompoundActionParam(param, routeDataValues, propertyReader);
+        }
 
-		private static IList<RouteValue> ProcessCompoundActionParam(HttpParameterDescriptor param, IHttpRouteData routeDataValues, PropertyReader propertyReader)
-		{
-			var routeValues = new List<RouteValue>();
+        private static IList<RouteValue> ProcessSimpleActionParam(HttpParameterDescriptor param, IHttpRouteData routeDataValues)
+        {
+            var routeValues = new List<RouteValue>();
 
-			var fieldNames = propertyReader.SimplePropertyNames(param.ParameterType);
-			foreach (var fieldName in fieldNames)
-			{
-				var value = ReadParamWithRouteValue(fieldName.ToLowerInvariant(), routeDataValues.Values);
-				if (value != null)
-				{
-					routeValues.Add(value);
-				}
-			}
+            var paramName = param.ParameterName;
+            var value = ReadParamWithRouteValue(paramName, routeDataValues.Values);
+            if (value != null)
+            {
+                routeValues.Add(value);
+            }
+            return routeValues;
+        }
 
-			return routeValues;
-		}
+        private static IList<RouteValue> ProcessCompoundActionParam(HttpParameterDescriptor param, IHttpRouteData routeDataValues, PropertyReader propertyReader)
+        {
+            var routeValues = new List<RouteValue>();
 
-		private static RouteValue ReadParamWithRouteValue(string paramName, IDictionary<string, object> values)
-		{
-			if (values.ContainsKey(paramName))
-			{
-				var paramValue = values[paramName];
-				if (paramValue != null)
-				{
-					return new RouteValue(paramName, paramValue, RouteValueOrigin.Params);
-				}
-			}
+            var fieldNames = propertyReader.SimplePropertyNames(param.ParameterType);
+            foreach (var fieldName in fieldNames)
+            {
+                var value = ReadParamWithRouteValue(fieldName.ToLowerInvariant(), routeDataValues.Values);
+                if (value != null)
+                {
+                    routeValues.Add(value);
+                }
+            }
 
-			return null;
-		}
+            return routeValues;
+        }
 
-		private IHttpRouteData GetRouteData()
-		{
-			if (request.Properties.Any(prop => prop.Value is HttpRouteData))
-			{
-				var routeDataProp = request.Properties.First(prop => prop.Value is HttpRouteData);
-				return routeDataProp.Value as HttpRouteData;
-			}
+        private static RouteValue ReadParamWithRouteValue(string paramName, IDictionary<string, object> values)
+        {
+            if (values.ContainsKey(paramName))
+            {
+                var paramValue = values[paramName];
+                if (paramValue != null)
+                {
+                    return new RouteValue(paramName, paramValue, RouteValueOrigin.Params);
+                }
+            }
 
-			if (request.Properties.ContainsKey("MS_HttpRouteData"))
-			{
-				return GetRouteDataFromReflectedInternalComplexity();
-			}
-			
-			return null;
-		}
+            return null;
+        }
 
-		private IHttpRouteData GetRouteDataFromReflectedInternalComplexity()
-		{
-			var msRouteData = request.Properties.First(prop => prop.Key == "MS_HttpRouteData").Value;
-			// use reflection as this is an internal class, ugh! "System.Web.Http.Routing.RouteCollectionRoute.RouteCollectionRouteData" 
-			var valuesProp = msRouteData.GetType().GetProperties().First(p => p.Name == "Values");
-			var subRoutesDict = valuesProp.GetValue(msRouteData, null) as HttpRouteValueDictionary;
-			var firstRoutes = subRoutesDict.Values.First(x => x is IHttpRouteData[]) as IHttpRouteData[];
+        private IHttpRouteData GetRouteData()
+        {
+            if (request.Properties.Any(prop => prop.Value is HttpRouteData))
+            {
+                var routeDataProp = request.Properties.First(prop => prop.Value is HttpRouteData);
+                return routeDataProp.Value as HttpRouteData;
+            }
 
-			//look for a route that supports the request's HTTP method 
-			var matchingRoute = firstRoutes.FirstOrDefault(MatchesMethod);
+            if (request.Properties.ContainsKey("MS_HttpRouteData"))
+            {
+                return GetRouteDataFromReflectedInternalComplexity();
+            }
 
-			return matchingRoute;
-		}
+            return null;
+        }
 
-		private bool MatchesMethod(IHttpRouteData routeData)
-		{
-			return
-				routeData.Route.DataTokens.ContainsKey("actions") &&
-				routeData.Route.DataTokens["actions"] is HttpActionDescriptor[] &&
-				((HttpActionDescriptor[])routeData.Route.DataTokens["actions"]).Any(a => a.SupportedHttpMethods.Contains(request.Method));
-		}
+        private IHttpRouteData GetRouteDataFromReflectedInternalComplexity()
+        {
+            var msRouteData = request.Properties.First(prop => prop.Key == "MS_HttpRouteData").Value;
+            // use reflection as this is an internal class, ugh! "System.Web.Http.Routing.RouteCollectionRoute.RouteCollectionRouteData" 
+            var valuesProp = msRouteData.GetType().GetProperties().First(p => p.Name == "Values");
+            var subRoutesDict = valuesProp.GetValue(msRouteData, null) as HttpRouteValueDictionary;
+            var firstRoutes = subRoutesDict.Values.First(x => x is IHttpRouteData[]) as IHttpRouteData[];
 
-		public string ActionName()
-		{
-			if (controllerContext.ControllerDescriptor == null)
-			{
-				ControllerType();
-			}
+            //look for a route that supports the request's HTTP method 
+            var matchingRoute = firstRoutes.FirstOrDefault(MatchesMethod);
 
-			var actionDescriptor = GetActionDescriptor();
+            return matchingRoute;
+        }
 
-			return actionDescriptor.ActionName;
-		}
+        private bool MatchesMethod(IHttpRouteData routeData)
+        {
+            return
+                routeData.Route.DataTokens.ContainsKey("actions") &&
+                routeData.Route.DataTokens["actions"] is HttpActionDescriptor[] &&
+                ((HttpActionDescriptor[])routeData.Route.DataTokens["actions"]).Any(a => a.SupportedHttpMethods.Contains(request.Method));
+        }
 
-		public bool IsControllerRouteFound()
-		{
-			if (! HasMatchedRoute)
-			{
-				return false;
-			}
+        public string ActionName()
+        {
+            if (controllerContext.ControllerDescriptor == null)
+            {
+                ControllerType();
+            }
 
-			try
-			{
-				return !string.IsNullOrEmpty(ActionName());
-			}
-			catch (HttpResponseException hrex)
-			{
-				var status = hrex.Response.StatusCode;
-				return status != HttpStatusCode.NotFound;
-			}
-		}
+            var actionDescriptor = GetActionDescriptor();
 
-		public bool IsMethodAllowed()
-		{
-			try
-			{
-				return ! string.IsNullOrEmpty(ActionName());
-			}
-			catch (HttpResponseException hrex)
-			{
-				var status = hrex.Response.StatusCode;
-				return status != HttpStatusCode.MethodNotAllowed;
-			}
-		}
+            return actionDescriptor.ActionName;
+        }
 
-		public Type ControllerType()
-		{
-			var controllerDescriptor = controllerSelector.SelectController(request);
-			controllerContext.ControllerDescriptor = controllerDescriptor;
+        public bool IsControllerRouteFound()
+        {
+            if (!HasMatchedRoute)
+            {
+                return false;
+            }
 
-			return controllerDescriptor.ControllerType;
-		}
+            try
+            {
+                return !string.IsNullOrEmpty(ActionName());
+            }
+            catch (HttpResponseException hrex)
+            {
+                var status = hrex.Response.StatusCode;
+                return status != HttpStatusCode.NotFound;
+            }
+        }
 
-		public string ControllerName()
-		{
-			var controllerType = ControllerType();
-			var name = controllerType.Name;
-			if (name.EndsWith("Controller"))
-			{
-				name = name.Substring(0, name.Length - 10);
-			}
+        public bool IsMethodAllowed()
+        {
+            try
+            {
+                return !string.IsNullOrEmpty(ActionName());
+            }
+            catch (HttpResponseException hrex)
+            {
+                var status = hrex.Response.StatusCode;
+                return status != HttpStatusCode.MethodNotAllowed;
+            }
+        }
 
-			return name;
-		}
+        public Type ControllerType()
+        {
+            var controllerDescriptor = controllerSelector.SelectController(request);
+            controllerContext.ControllerDescriptor = controllerDescriptor;
 
-		public void CheckNoMethod(string url, HttpMethod httpMethod)
-		{
-			if (! HasMatchedRoute)
-			{
-				var noRouteDataMessage = string.Format("No route matched url '{0}'", url);
-				Asserts.Fail(noRouteDataMessage);
-				return;
-			}
+            return controllerDescriptor.ControllerType;
+        }
 
-			if (!IsControllerRouteFound())
-			{
-				var routeNotFoundMessage = string.Format("Route with controller not found for url '{0}'", url);
-				Asserts.Fail(routeNotFoundMessage);
-				return;
-			}
+        public string ControllerName()
+        {
+            var controllerType = ControllerType();
+            var name = controllerType.Name;
+            if (name.EndsWith("Controller"))
+            {
+                name = name.Substring(0, name.Length - 10);
+            }
 
-			if (IsMethodAllowed())
-			{
-				var methodAllowedMessage = string.Format("Method {0} is allowed on url '{1}'", httpMethod, url);
-				Asserts.Fail(methodAllowedMessage);
-			}
-		}
+            return name;
+        }
 
-		public void CheckControllerHasNoMethod(string url, HttpMethod httpMethod, Type controllerType)
-		{
-			CheckNoMethod(url, httpMethod);
-			var actualControllerType = ControllerType();
+        public void CheckNoMethod(string url, HttpMethod httpMethod)
+        {
+            if (!HasMatchedRoute)
+            {
+                var noRouteDataMessage = string.Format("No route matched url '{0}'", url);
+                Asserts.Fail(noRouteDataMessage);
+                return;
+            }
 
-			if (controllerType != actualControllerType)
-			{
-				var methodAllowedMessage = string.Format("Expected controller {0}, but goes to {1} for url '{2}'", 
-					controllerType.Name, actualControllerType.Name, url);
-				Asserts.Fail(methodAllowedMessage);
-			}
-		}
+            if (!IsControllerRouteFound())
+            {
+                var routeNotFoundMessage = string.Format("Route with controller not found for url '{0}'", url);
+                Asserts.Fail(routeNotFoundMessage);
+                return;
+            }
 
-		private void GenerateRouteData()
-		{
-			matchedRoute = config.Routes.GetRouteData(request);
+            if (IsMethodAllowed())
+            {
+                var methodAllowedMessage = string.Format("Method {0} is allowed on url '{1}'", httpMethod, url);
+                Asserts.Fail(methodAllowedMessage);
+            }
+        }
 
-			if (matchedRoute != null)
-			{
-				request.Properties[HttpPropertyKeys.HttpRouteDataKey] = matchedRoute;
+        public void CheckControllerHasNoMethod(string url, HttpMethod httpMethod, Type controllerType)
+        {
+            CheckNoMethod(url, httpMethod);
+            var actualControllerType = ControllerType();
 
-				controllerSelector = (IHttpControllerSelector)config.Services.GetService(typeof(IHttpControllerSelector));
-				controllerContext = new HttpControllerContext(config, matchedRoute, request);
-			}
-		}
+            if (controllerType != actualControllerType)
+            {
+                var methodAllowedMessage = string.Format("Expected controller {0}, but goes to {1} for url '{2}'",
+                    controllerType.Name, actualControllerType.Name, url);
+                Asserts.Fail(methodAllowedMessage);
+            }
+        }
 
-		private HttpActionDescriptor GetActionDescriptor()
-		{
-			if (descriptor == null)
-			{
-				var actionSelector = new ApiControllerActionSelector();
-				descriptor = actionSelector.SelectAction(controllerContext);
-			}
+        private void GenerateRouteData()
+        {
+            matchedRoute = config.Routes.GetRouteData(request);
 
-			return descriptor;
-		}
+            if (matchedRoute != null)
+            {
+                request.Properties[HttpPropertyKeys.HttpRouteDataKey] = matchedRoute;
 
-		private IList<RouteValue> ReadPropertiesFromBodyContent(BodyFormat bodyFormat)
-		{
-			var bodyTask = request.Content.ReadAsStringAsync();
-			var body = bodyTask.Result;
+                controllerSelector = (IHttpControllerSelector)config.Services.GetService(typeof(IHttpControllerSelector));
+                controllerContext = new HttpControllerContext(config, matchedRoute, request);
+            }
+        }
 
-			var bodyReader = new BodyReader();
-			return bodyReader.ReadBody(body, bodyFormat);
-		}
-	}
+        private HttpActionDescriptor GetActionDescriptor()
+        {
+            if (descriptor == null)
+            {
+                var actionSelector = new ApiControllerActionSelector();
+                descriptor = actionSelector.SelectAction(controllerContext);
+            }
+
+            return descriptor;
+        }
+
+        private IList<RouteValue> ReadPropertiesFromBodyContent(BodyFormat bodyFormat)
+        {
+            var bodyTask = request.Content.ReadAsStringAsync();
+            var body = bodyTask.Result;
+
+            var bodyReader = new BodyReader();
+            return bodyReader.ReadBody(body, bodyFormat);
+        }
+    }
 }

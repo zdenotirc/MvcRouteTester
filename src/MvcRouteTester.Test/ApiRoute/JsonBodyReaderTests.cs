@@ -3,64 +3,64 @@ using NUnit.Framework;
 
 namespace MvcRouteTester.Test.ApiRoute
 {
-	[TestFixture]
-	public class JsonBodyReaderTests
-	{
-		[Test]
-		public void CanReadEmptyBody()
-		{
-			var reader = new JsonBodyReader();
-			var result = reader.ReadBody(string.Empty);
+    [TestFixture]
+    public class JsonBodyReaderTests
+    {
+        [Test]
+        public void CanReadEmptyBody()
+        {
+            var reader = new JsonBodyReader();
+            var result = reader.ReadBody(string.Empty);
 
-			Assert.That(result, Is.Not.Null);
-			Assert.That(result, Is.Empty);
-		}
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
+        }
 
-		[Test]
-		public void CanReadEmptyJsonObject()
-		{
-			var reader = new JsonBodyReader();
-			var result = reader.ReadBody("{ }");
+        [Test]
+        public void CanReadEmptyJsonObject()
+        {
+            var reader = new JsonBodyReader();
+            var result = reader.ReadBody("{ }");
 
-			Assert.That(result, Is.Not.Null);
-			Assert.That(result, Is.Empty);
-		}
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Empty);
+        }
 
-		[Test]
-		public void CanReadOneProperty()
-		{
-			var reader = new JsonBodyReader();
-			var result = reader.ReadBody("{ id: 42}");
+        [Test]
+        public void CanReadOneProperty()
+        {
+            var reader = new JsonBodyReader();
+            var result = reader.ReadBody("{ id: 42}");
 
-			Assert.That(result.Count, Is.EqualTo(1));
-			var value = result[0];
-			Assert.That(value.Name, Is.EqualTo("id"));
-			Assert.That(value.Value, Is.EqualTo(42));
-		}
+            Assert.That(result.Count, Is.EqualTo(1));
+            var value = result[0];
+            Assert.That(value.Name, Is.EqualTo("id"));
+            Assert.That(value.Value, Is.EqualTo(42));
+        }
 
-		[Test]
-		public void CanReadTwoProperties()
-		{
-			var reader = new JsonBodyReader();
-			var result = reader.ReadBody("{ id: 42, name: \"fred\"}");
+        [Test]
+        public void CanReadTwoProperties()
+        {
+            var reader = new JsonBodyReader();
+            var result = reader.ReadBody("{ id: 42, name: \"fred\"}");
 
-			Assert.That(result.Count, Is.EqualTo(2));
-			var value1 = result[0];
-			Assert.That(value1.Name, Is.EqualTo("id"));
-			Assert.That(value1.Value, Is.EqualTo(42));
+            Assert.That(result.Count, Is.EqualTo(2));
+            var value1 = result[0];
+            Assert.That(value1.Name, Is.EqualTo("id"));
+            Assert.That(value1.Value, Is.EqualTo(42));
 
-			var value2 = result[1];
-			Assert.That(value2.Name, Is.EqualTo("name"));
-			Assert.That(value2.Value, Is.EqualTo("fred"));
-		}
+            var value2 = result[1];
+            Assert.That(value2.Name, Is.EqualTo("name"));
+            Assert.That(value2.Value, Is.EqualTo("fred"));
+        }
 
-		[Test]
-		public void CanReadMultipleValues()
-		{
-			var reader = new JsonBodyReader();
-			var result = reader.ReadBody("{ val1: \"a\", val2: \"b\", val3: \"c\", val4: \"d\", val5: \"e\" }");
+        [Test]
+        public void CanReadMultipleValues()
+        {
+            var reader = new JsonBodyReader();
+            var result = reader.ReadBody("{ val1: \"a\", val2: \"b\", val3: \"c\", val4: \"d\", val5: \"e\" }");
 
-			Assert.That(result.Count, Is.EqualTo(5));
-		}
-	}
+            Assert.That(result.Count, Is.EqualTo(5));
+        }
+    }
 }

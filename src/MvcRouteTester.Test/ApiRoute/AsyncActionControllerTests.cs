@@ -9,30 +9,30 @@ using NUnit.Framework;
 
 namespace MvcRouteTester.Test.ApiRoute
 {
-	[TestFixture]
-	public class AsyncActionControllerTests
-	{
-		private HttpConfiguration config;
+    [TestFixture]
+    public class AsyncActionControllerTests
+    {
+        private HttpConfiguration config;
 
-		[SetUp]
-		public void MakeRouteTable()
-		{
-			RouteAssert.UseAssertEngine(new NunitAssertEngine());
+        [SetUp]
+        public void MakeRouteTable()
+        {
+            RouteAssert.UseAssertEngine(new NunitAssertEngine());
 
-			config = new HttpConfiguration();
+            config = new HttpConfiguration();
 
-			config.Routes.MapHttpRoute(
-				name: "DefaultApi",
-				routeTemplate: "api/{controller}/{id}",
-				defaults: new { id = RouteParameter.Optional });
-		}
+            config.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "api/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional });
+        }
 
-		[Test]
-		public void RecognisesSimpleRoute()
-		{
-			var expectedRoute = new { controller = "AsyncAction", action = "GetAsync" };
-			RouteAssert.HasApiRoute(config, "/api/AsyncAction", HttpMethod.Get, expectedRoute);
-		}
+        [Test]
+        public void RecognisesSimpleRoute()
+        {
+            var expectedRoute = new { controller = "AsyncAction", action = "GetAsync" };
+            RouteAssert.HasApiRoute(config, "/api/AsyncAction", HttpMethod.Get, expectedRoute);
+        }
 
         [Test]
         public void RecognisesSimpleRouteAndCancellationToken()
@@ -42,11 +42,11 @@ namespace MvcRouteTester.Test.ApiRoute
         }
 
         [Test]
-		public void RecognisesRouteWithParams()
-		{
-			var expectedRoute = new { controller = "AsyncAction", action = "GetAsync" };
-			RouteAssert.HasApiRoute(config, "/api/AsyncAction/123", HttpMethod.Get, expectedRoute);
-		}
+        public void RecognisesRouteWithParams()
+        {
+            var expectedRoute = new { controller = "AsyncAction", action = "GetAsync" };
+            RouteAssert.HasApiRoute(config, "/api/AsyncAction/123", HttpMethod.Get, expectedRoute);
+        }
 
         [Test]
         public void RecognisesRouteWithParamsAndCancellationToken()
@@ -56,11 +56,11 @@ namespace MvcRouteTester.Test.ApiRoute
         }
 
         [Test]
-		public void RecognisesFluentRoute()
-		{
-			config.ShouldMap("/api/AsyncAction/123")
-				.To<AsyncActionController>(HttpMethod.Get, x => x.GetAsync(123));
-		}
+        public void RecognisesFluentRoute()
+        {
+            config.ShouldMap("/api/AsyncAction/123")
+                .To<AsyncActionController>(HttpMethod.Get, x => x.GetAsync(123));
+        }
 
         [Test]
         public void RecognisesFluentRouteWithCancelllationToken()

@@ -5,39 +5,39 @@ using MvcRouteTester.Common;
 
 namespace MvcRouteTester.ApiRoute
 {
-	/// <summary>
-	/// read the post body that is form-urlencoded
-	/// </summary>
-	public class FormUrlBodyReader
-	{
-		public IList<RouteValue> ReadBody(string body)
-		{
-			var values = new List<RouteValue>();
+    /// <summary>
+    /// read the post body that is form-urlencoded
+    /// </summary>
+    public class FormUrlBodyReader
+    {
+        public IList<RouteValue> ReadBody(string body)
+        {
+            var values = new List<RouteValue>();
 
-			var bodyParams = body.Split('&');
-			foreach (var bodyParam in bodyParams)
-			{
-				if (!string.IsNullOrWhiteSpace(bodyParam))
-				{
-					values.Add(ReadValue(bodyParam));
-				}
-			}
+            var bodyParams = body.Split('&');
+            foreach (var bodyParam in bodyParams)
+            {
+                if (!string.IsNullOrWhiteSpace(bodyParam))
+                {
+                    values.Add(ReadValue(bodyParam));
+                }
+            }
 
-			return values;
-		}
+            return values;
+        }
 
-		private static RouteValue ReadValue(string bodyParam)
-		{
-			var nameAndValue = bodyParam.Split('=');
+        private static RouteValue ReadValue(string bodyParam)
+        {
+            var nameAndValue = bodyParam.Split('=');
 
-			var name = nameAndValue[0].ToLowerInvariant();
-			string value = string.Empty;
-			if (nameAndValue.Length > 1)
-			{
-				value = nameAndValue[1];
-			}
+            var name = nameAndValue[0].ToLowerInvariant();
+            string value = string.Empty;
+            if (nameAndValue.Length > 1)
+            {
+                value = nameAndValue[1];
+            }
 
-			return new RouteValue(name, HttpUtility.UrlDecode(value), RouteValueOrigin.Body);
-		}
-	}
+            return new RouteValue(name, HttpUtility.UrlDecode(value), RouteValueOrigin.Body);
+        }
+    }
 }

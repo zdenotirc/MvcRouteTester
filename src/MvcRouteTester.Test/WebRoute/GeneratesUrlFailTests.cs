@@ -9,119 +9,119 @@ using NUnit.Framework;
 
 namespace MvcRouteTester.Test.WebRoute
 {
-	[TestFixture]
-	public class GeneratesUrlFailTests
-	{
-		private RouteCollection routes;
-		private FakeAssertEngine assertEngine;
+    [TestFixture]
+    public class GeneratesUrlFailTests
+    {
+        private RouteCollection routes;
+        private FakeAssertEngine assertEngine;
 
-		[SetUp]
-		public void MakeRouteTable()
-		{
-			assertEngine = new FakeAssertEngine();
-			RouteAssert.UseAssertEngine(assertEngine);
+        [SetUp]
+        public void MakeRouteTable()
+        {
+            assertEngine = new FakeAssertEngine();
+            RouteAssert.UseAssertEngine(assertEngine);
 
-			routes = new RouteCollection();
-			routes.MapRoute(
-				name: "Default",
-				url: "{controller}/{action}/{id}",
-				defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional });
-		}
+            routes = new RouteCollection();
+            routes.MapRoute(
+                name: "Default",
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional });
+        }
 
-		[TearDown]
-		public void TearDown()
-		{
-			RouteAssert.UseAssertEngine(new NunitAssertEngine());
-		}
+        [TearDown]
+        public void TearDown()
+        {
+            RouteAssert.UseAssertEngine(new NunitAssertEngine());
+        }
 
-		[Test]
-		public void Fail_message_when_no_controller()
-		{
-			var expectations = new
-				{
-					Action = "index"
-				};
-			RouteAssert.GeneratesActionUrl(routes, "/", expectations);
+        [Test]
+        public void Fail_message_when_no_controller()
+        {
+            var expectations = new
+            {
+                Action = "index"
+            };
+            RouteAssert.GeneratesActionUrl(routes, "/", expectations);
 
-			Assert.That(assertEngine.FailCount, Is.EqualTo(1));
-			Assert.That(assertEngine.Messages[0], Is.EqualTo("No 'controller' property found in expected route properties"));
-		}
+            Assert.That(assertEngine.FailCount, Is.EqualTo(1));
+            Assert.That(assertEngine.Messages[0], Is.EqualTo("No 'controller' property found in expected route properties"));
+        }
 
-		[Test]
-		public void Fail_message_when_no_action()
-		{
-			var expectations = new
-			{
-				controller = "home"
-			};
-			RouteAssert.GeneratesActionUrl(routes, "/", expectations);
+        [Test]
+        public void Fail_message_when_no_action()
+        {
+            var expectations = new
+            {
+                controller = "home"
+            };
+            RouteAssert.GeneratesActionUrl(routes, "/", expectations);
 
-			Assert.That(assertEngine.FailCount, Is.EqualTo(1));
-			Assert.That(assertEngine.Messages[0], Is.EqualTo("No 'action' property found in  expected route properties"));
-		}
+            Assert.That(assertEngine.FailCount, Is.EqualTo(1));
+            Assert.That(assertEngine.Messages[0], Is.EqualTo("No 'action' property found in  expected route properties"));
+        }
 
-		[Test]
-		public void Success_with_controller_and_action()
-		{
-			var expectations = new
-			{
-				controller = "home",
-				Action = "index"
-			};
-			RouteAssert.GeneratesActionUrl(routes, "/", expectations);
+        [Test]
+        public void Success_with_controller_and_action()
+        {
+            var expectations = new
+            {
+                controller = "home",
+                Action = "index"
+            };
+            RouteAssert.GeneratesActionUrl(routes, "/", expectations);
 
-			Assert.That(assertEngine.FailCount, Is.EqualTo(0));
-		}
+            Assert.That(assertEngine.FailCount, Is.EqualTo(0));
+        }
 
-		[Test]
-		public void Fail_message_on_action_is_as_expected()
-		{
-			RouteAssert.GeneratesActionUrl(routes, "/", "NoSuchAction", "Home");
+        [Test]
+        public void Fail_message_on_action_is_as_expected()
+        {
+            RouteAssert.GeneratesActionUrl(routes, "/", "NoSuchAction", "Home");
 
-			Assert.That(assertEngine.FailCount, Is.EqualTo(1));
-			Assert.That(assertEngine.Messages[0], Is.EqualTo("Generated url does not equal to expected url. Generated: '/Home/NoSuchAction', expected: '/'"));
-		}
+            Assert.That(assertEngine.FailCount, Is.EqualTo(1));
+            Assert.That(assertEngine.Messages[0], Is.EqualTo("Generated url does not equal to expected url. Generated: '/Home/NoSuchAction', expected: '/'"));
+        }
 
-		[Test]
-		public void Fail_message_on_controller_is_as_expected()
-		{
-			RouteAssert.GeneratesActionUrl(routes, "/", "Index", "NoSuchController");
+        [Test]
+        public void Fail_message_on_controller_is_as_expected()
+        {
+            RouteAssert.GeneratesActionUrl(routes, "/", "Index", "NoSuchController");
 
-			Assert.That(assertEngine.FailCount, Is.EqualTo(1));
-			Assert.That(assertEngine.Messages[0], Is.EqualTo("Generated url does not equal to expected url. Generated: '/NoSuchController', expected: '/'"));
-		}
+            Assert.That(assertEngine.FailCount, Is.EqualTo(1));
+            Assert.That(assertEngine.Messages[0], Is.EqualTo("Generated url does not equal to expected url. Generated: '/NoSuchController', expected: '/'"));
+        }
 
-		[Test]
-		public void Fail_message_is_as_expected_with_anon_object()
-		{
-			RouteAssert.GeneratesActionUrl(routes, "/", new { action = "NoSuchAction", controller = "Home" });
+        [Test]
+        public void Fail_message_is_as_expected_with_anon_object()
+        {
+            RouteAssert.GeneratesActionUrl(routes, "/", new { action = "NoSuchAction", controller = "Home" });
 
-			Assert.That(assertEngine.FailCount, Is.EqualTo(1));
-			Assert.That(assertEngine.Messages[0], Is.EqualTo("Generated url does not equal to expected url. Generated: '/Home/NoSuchAction', expected: '/'"));
-		}
+            Assert.That(assertEngine.FailCount, Is.EqualTo(1));
+            Assert.That(assertEngine.Messages[0], Is.EqualTo("Generated url does not equal to expected url. Generated: '/Home/NoSuchAction', expected: '/'"));
+        }
 
-		[Test]
-		public void Fail_message_is_as_expected_with_dictionary()
-		{
-			var values = new Dictionary<string,string>
-				{
-					{ "action", "NoSuchAction"},
-					{ "controller", "Home"},
-				};
+        [Test]
+        public void Fail_message_is_as_expected_with_dictionary()
+        {
+            var values = new Dictionary<string, string>
+                {
+                    { "action", "NoSuchAction"},
+                    { "controller", "Home"},
+                };
 
-			RouteAssert.GeneratesActionUrl(routes, "/", values);
+            RouteAssert.GeneratesActionUrl(routes, "/", values);
 
-			Assert.That(assertEngine.FailCount, Is.EqualTo(1));
-			Assert.That(assertEngine.Messages[0], Is.EqualTo("Generated url does not equal to expected url. Generated: '/Home/NoSuchAction', expected: '/'"));
-		}
+            Assert.That(assertEngine.FailCount, Is.EqualTo(1));
+            Assert.That(assertEngine.Messages[0], Is.EqualTo("Generated url does not equal to expected url. Generated: '/Home/NoSuchAction', expected: '/'"));
+        }
 
-		[Test]
-		public void Fail_message_on_action_is_as_expected_with_current_url()
-		{
-			RouteAssert.GeneratesActionUrl(routes, "/", "NoSuchAction", "Home", HttpMethod.Get, "/foo");
+        [Test]
+        public void Fail_message_on_action_is_as_expected_with_current_url()
+        {
+            RouteAssert.GeneratesActionUrl(routes, "/", "NoSuchAction", "Home", HttpMethod.Get, "/foo");
 
-			Assert.That(assertEngine.FailCount, Is.EqualTo(1));
-			Assert.That(assertEngine.Messages[0], Is.EqualTo("Generated url does not equal to expected url. Generated: '/foo/Home/NoSuchAction', expected: '/'"));
-		}
-	}
+            Assert.That(assertEngine.FailCount, Is.EqualTo(1));
+            Assert.That(assertEngine.Messages[0], Is.EqualTo("Generated url does not equal to expected url. Generated: '/foo/Home/NoSuchAction', expected: '/'"));
+        }
+    }
 }

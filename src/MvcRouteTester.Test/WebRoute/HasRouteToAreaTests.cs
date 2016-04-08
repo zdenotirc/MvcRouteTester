@@ -8,45 +8,45 @@ using NUnit.Framework;
 
 namespace MvcRouteTester.Test.WebRoute
 {
-	[TestFixture]
-	public class HasRouteToAreaTests
-	{
-		private RouteCollection routes;
-		
-		[SetUp]
-		public void MakeRouteTable()
-		{
-			RouteAssert.UseAssertEngine(new NunitAssertEngine());
+    [TestFixture]
+    public class HasRouteToAreaTests
+    {
+        private RouteCollection routes;
 
-			routes = new RouteCollection();
+        [SetUp]
+        public void MakeRouteTable()
+        {
+            RouteAssert.UseAssertEngine(new NunitAssertEngine());
 
-			var areaRegistration = new SomeAreaAreaRegistration();
-			var context = new AreaRegistrationContext(areaRegistration.AreaName, routes);
-			areaRegistration.RegisterArea(context);
-		}
+            routes = new RouteCollection();
 
-		[TearDown]
-		public void TearDown()
-		{
-			RouteAssert.UseAssertEngine(new NunitAssertEngine());
-		}
+            var areaRegistration = new SomeAreaAreaRegistration();
+            var context = new AreaRegistrationContext(areaRegistration.AreaName, routes);
+            areaRegistration.RegisterArea(context);
+        }
 
-		[Test]
-		public void HasDefaultRouteToArea()
-		{
-			RouteAssert.HasRoute(routes, "/SomeArea");
-		}
+        [TearDown]
+        public void TearDown()
+        {
+            RouteAssert.UseAssertEngine(new NunitAssertEngine());
+        }
 
-		[Test]
-		public void AreaRouteHasControllerAndAction()
-		{
-			RouteAssert.HasRoute(routes, "/SomeArea", new { Controller = "Test", Action = "Index" });
-		}
+        [Test]
+        public void HasDefaultRouteToArea()
+        {
+            RouteAssert.HasRoute(routes, "/SomeArea");
+        }
 
-		[Test]
-		public void AreaRouteHasAreaName()
-		{
-			RouteAssert.HasRoute(routes, "/SomeArea", new { Area = "SomeArea", Controller = "Test", Action = "Index" });
-		}
-	}
+        [Test]
+        public void AreaRouteHasControllerAndAction()
+        {
+            RouteAssert.HasRoute(routes, "/SomeArea", new { Controller = "Test", Action = "Index" });
+        }
+
+        [Test]
+        public void AreaRouteHasAreaName()
+        {
+            RouteAssert.HasRoute(routes, "/SomeArea", new { Area = "SomeArea", Controller = "Test", Action = "Index" });
+        }
+    }
 }
